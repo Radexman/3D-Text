@@ -17,12 +17,14 @@ const canvas = document.querySelector('canvas.webgl');
 const scene = new THREE.Scene();
 
 const axesHelper = new THREE.AxesHelper();
-scene.add(axesHelper);
+// scene.add(axesHelper);
 
 /**
  * Textures
  */
 const textureLoader = new THREE.TextureLoader();
+const matcapTexture = textureLoader.load('/textures/matcaps/3.png');
+matcapTexture.colorSpace = THREE.SRGBColorSpace;
 
 // Fonts
 const fontLoader = new FontLoader();
@@ -36,12 +38,32 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
 		bevelThickness: 0.03,
 		bevelSize: 0.02,
 		bevelOffset: 0,
-		bevelSegments: 3,
+		bevelSegments: 4,
 	});
 
-	const textMaterial = new THREE.MeshBasicMaterial({ wireframe: true });
-	const text = new THREE.Mesh(textGeometry, textMaterial);
+	textGeometry.center();
+
+	const material = new THREE.MeshMatcapMaterial({ matcap: matcapTexture });
+	const text = new THREE.Mesh(textGeometry, material);
 	scene.add(text);
+
+	const donutGeometry = new THREE.TorusGeometry(0.3, 0.2, 20, 45);
+
+	for (let i = 0; i < 300; i++) {
+		const donut = new THREE.Mesh(donutGeometry, material);
+
+		donut.position.x = (Math.random() - 0.5) * 10;
+		donut.position.y = (Math.random() - 0.5) * 10;
+		donut.position.z = (Math.random() - 0.5) * 10;
+
+		donut.rotation.x = Math.random() * Math.PI;
+		donut.rotation.y = Math.random() * Math.PI;
+
+		const scale = Math.random();
+		donut.scale.set(scale, scale, scale);
+
+		scene.add(donut);
+	}
 });
 
 /**
@@ -71,7 +93,7 @@ window.addEventListener('resize', () => {
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
-camera.position.x = 1;
+camera.position.x = -1;
 camera.position.y = 1;
 camera.position.z = 2;
 scene.add(camera);
